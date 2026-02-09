@@ -1,0 +1,2150 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Protocol X | لعبة الألغاز التحدي - النسخة المتطورة</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            margin: 0;
+            background: #0a0a14;
+            color: #00ffcc;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+        
+        canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: -1;
+        }
+        
+        /* شاشة الدخول */
+        .login-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(5, 10, 20, 0.98);
+            z-index: 1000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(15px);
+        }
+        
+        .login-container {
+            background: rgba(10, 25, 40, 0.95);
+            padding: 60px 40px;
+            border-radius: 25px;
+            box-shadow: 0 0 50px rgba(0, 255, 204, 0.5);
+            text-align: center;
+            max-width: 500px;
+            width: 90%;
+            border: 2px solid #00ffcc;
+            animation: fadeIn 1s;
+        }
+        
+        .login-container h1 {
+            margin-bottom: 20px;
+            color: #00ffcc;
+            font-size: 2.5rem;
+            text-shadow: 0 0 15px rgba(0, 255, 204, 0.7);
+        }
+        
+        .login-container p {
+            margin-bottom: 30px;
+            color: #aaffee;
+            font-size: 1.1rem;
+            line-height: 1.6;
+        }
+        
+        .difficulty-select {
+            margin: 20px 0;
+            text-align: right;
+        }
+        
+        .difficulty-select label {
+            display: block;
+            margin-bottom: 10px;
+            color: #66ffd9;
+        }
+        
+        #difficulty {
+            width: 100%;
+            padding: 12px;
+            background: rgba(0, 0, 0, 0.6);
+            border: 2px solid #00ffcc;
+            border-radius: 10px;
+            color: #00ffcc;
+            font-size: 1.1rem;
+            direction: rtl;
+        }
+        
+        .password-input {
+            position: relative;
+            margin: 30px 0;
+        }
+        
+        #password {
+            width: 100%;
+            padding: 18px 20px;
+            background: rgba(0, 0, 0, 0.6);
+            border: 2px solid #00ffcc;
+            border-radius: 15px;
+            color: #00ffcc;
+            font-size: 1.2rem;
+            text-align: center;
+            letter-spacing: 3px;
+            direction: ltr;
+            transition: all 0.3s;
+        }
+        
+        #password:focus {
+            outline: none;
+            box-shadow: 0 0 25px rgba(0, 255, 204, 0.7);
+            border-color: #66ffd9;
+        }
+        
+        .password-hint {
+            color: #66ccff;
+            font-size: 0.9rem;
+            margin-top: 10px;
+            font-style: italic;
+        }
+        
+        .error-message {
+            color: #ff6666;
+            margin-top: 15px;
+            min-height: 25px;
+            font-weight: bold;
+            text-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+        }
+        
+        .login-btn {
+            background: linear-gradient(135deg, #00ffcc, #00997a);
+            color: #001a14;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.2rem;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+            margin-top: 20px;
+            width: 100%;
+        }
+        
+        .login-btn:hover {
+            background: linear-gradient(135deg, #00ffaa, #008066);
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(0, 255, 204, 0.7);
+        }
+        
+        /* تصميم الهيدر */
+        .header {
+            background: rgba(0, 20, 20, 0.85);
+            padding: 15px 20px;
+            border-bottom: 2px solid #00ffcc;
+            box-shadow: 0 0 20px rgba(0, 255, 204, 0.3);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            backdrop-filter: blur(5px);
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.8rem;
+            font-weight: bold;
+            text-shadow: 0 0 10px #00ffcc;
+        }
+        
+        .logo i {
+            color: #00ffcc;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        
+        .stats-container {
+            display: flex;
+            gap: 25px;
+            font-size: 1.1rem;
+        }
+        
+        .stat {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(0, 255, 204, 0.1);
+            padding: 8px 15px;
+            border-radius: 8px;
+            border: 1px solid rgba(0, 255, 204, 0.3);
+        }
+        
+        .stat i {
+            color: #00ffcc;
+        }
+        
+        .difficulty-badge {
+            background: rgba(255, 100, 0, 0.3);
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 0.9rem;
+            border: 1px solid #ff6600;
+        }
+        
+        /* تصميم المحتوى الرئيسي */
+        .container {
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 0 20px;
+            text-align: center;
+        }
+        
+        .progress-container {
+            margin: 30px 0;
+            background: rgba(0, 255, 204, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            border: 1px solid rgba(0, 255, 204, 0.2);
+        }
+        
+        .progress-bar {
+            height: 12px;
+            background: rgba(0, 255, 204, 0.2);
+            border-radius: 6px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00ffcc, #00b386);
+            border-radius: 6px;
+            width: 2%;
+            transition: width 0.8s cubic-bezier(0.22, 0.61, 0.36, 1);
+        }
+        
+        /* تصميم صندوق اللغز */
+        #box {
+            background: rgba(5, 15, 25, 0.85);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 0 30px rgba(0, 255, 204, 0.4);
+            margin: 30px auto;
+            width: 100%;
+            max-width: 700px;
+            transition: transform 0.5s, opacity 0.5s;
+            border: 1px solid rgba(0, 255, 204, 0.2);
+            backdrop-filter: blur(10px);
+        }
+        
+        #box:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 0 40px rgba(0, 255, 204, 0.5);
+        }
+        
+        .stage-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(0, 255, 204, 0.2);
+        }
+        
+        #stageTitle {
+            font-size: 1.8rem;
+            color: #00ffcc;
+            text-shadow: 0 0 8px rgba(0, 255, 204, 0.5);
+        }
+        
+        .stage-hint {
+            color: #66ffd9;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        #question {
+            font-size: 1.5rem;
+            margin: 25px 0;
+            line-height: 1.6;
+            min-height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        /* خيارات متعددة */
+        .options-container {
+            margin: 25px 0;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+        
+        .option-btn {
+            background: rgba(0, 20, 40, 0.7);
+            border: 2px solid rgba(0, 255, 204, 0.3);
+            color: #aaffee;
+            padding: 15px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 1.1rem;
+            text-align: center;
+        }
+        
+        .option-btn:hover {
+            background: rgba(0, 40, 60, 0.9);
+            border-color: #00ffcc;
+            transform: translateY(-3px);
+        }
+        
+        .option-btn.correct {
+            background: rgba(0, 255, 100, 0.3);
+            border-color: #00ff66;
+            color: #00ff66;
+        }
+        
+        .option-btn.wrong {
+            background: rgba(255, 50, 50, 0.3);
+            border-color: #ff3333;
+            color: #ff6666;
+        }
+        
+        .input-container {
+            margin: 30px 0;
+            position: relative;
+        }
+        
+        #answer {
+            padding: 15px 20px;
+            width: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            color: #00ffcc;
+            border: 2px solid #00ffcc;
+            border-radius: 10px;
+            font-size: 1.2rem;
+            transition: all 0.3s;
+            direction: ltr;
+            text-align: center;
+        }
+        
+        #answer:focus {
+            outline: none;
+            box-shadow: 0 0 15px rgba(0, 255, 204, 0.5);
+            border-color: #66ffd9;
+            background: rgba(0, 10, 10, 0.7);
+        }
+        
+        .buttons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 25px;
+        }
+        
+        button {
+            padding: 12px 30px;
+            font-size: 1.1rem;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: bold;
+        }
+        
+        #checkBtn {
+            background: linear-gradient(135deg, #00ffcc, #00997a);
+            color: #001a14;
+        }
+        
+        #checkBtn:hover {
+            background: linear-gradient(135deg, #00ffaa, #008066);
+            transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(0, 255, 204, 0.7);
+        }
+        
+        #hintBtn {
+            background: rgba(0, 150, 255, 0.2);
+            color: #66ccff;
+            border: 1px solid #0099ff;
+        }
+        
+        #hintBtn:hover {
+            background: rgba(0, 150, 255, 0.4);
+            transform: scale(1.05);
+        }
+        
+        #nextBtn {
+            background: linear-gradient(135deg, #ff9900, #cc7700);
+            color: white;
+        }
+        
+        #nextBtn:hover {
+            background: linear-gradient(135deg, #ffaa33, #e68a00);
+        }
+        
+        /* شاشة التحميل */
+        .loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(5, 10, 20, 0.95);
+            z-index: 3000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+        
+        .loader {
+            width: 60px;
+            height: 60px;
+            border: 5px solid rgba(0, 255, 204, 0.3);
+            border-top: 5px solid #00ffcc;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* تأثيرات الرسوميات */
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background-color: #00ffcc;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: -1;
+        }
+        
+        /* شاشة القصة */
+        .story-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(5, 10, 30, 0.95);
+            z-index: 2000;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(15px);
+        }
+        
+        .story-content {
+            background: rgba(15, 25, 45, 0.95);
+            padding: 40px;
+            border-radius: 20px;
+            max-width: 700px;
+            width: 90%;
+            border: 2px solid #0066ff;
+            box-shadow: 0 0 40px rgba(0, 100, 255, 0.5);
+            text-align: center;
+            animation: slideIn 0.8s;
+        }
+        
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(-30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .story-content h2 {
+            color: #0066ff;
+            margin-bottom: 20px;
+            font-size: 2rem;
+            text-shadow: 0 0 10px rgba(0, 100, 255, 0.7);
+        }
+        
+        .story-content p {
+            color: #aaccff;
+            font-size: 1.2rem;
+            line-height: 1.8;
+            margin-bottom: 30px;
+            text-align: justify;
+        }
+        
+        .story-content .highlight {
+            color: #00ffcc;
+            font-weight: bold;
+        }
+        
+        .continue-btn {
+            background: linear-gradient(135deg, #0066ff, #003399);
+            color: white;
+            padding: 15px 40px;
+            font-size: 1.2rem;
+            border-radius: 10px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .continue-btn:hover {
+            background: linear-gradient(135deg, #0088ff, #0044cc);
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(0, 100, 255, 0.7);
+        }
+        
+        /* تصميم الفوتر */
+        footer {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            text-align: center;
+            padding: 15px;
+            background: rgba(0, 20, 20, 0.9);
+            border-top: 1px solid #00ffcc;
+            font-size: 1rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .social-icons {
+            display: flex;
+            gap: 15px;
+            margin-left: 20px;
+        }
+        
+        .social-icons a {
+            color: #66ffd9;
+            font-size: 1.2rem;
+            transition: all 0.3s;
+        }
+        
+        .social-icons a:hover {
+            color: #00ffcc;
+            transform: translateY(-3px);
+        }
+        
+        /* تصميم شاشة النهاية */
+        .end-screen {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(5, 10, 20, 0.95);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(10px);
+        }
+        
+        .end-content {
+            background: rgba(10, 25, 40, 0.95);
+            padding: 50px;
+            border-radius: 25px;
+            box-shadow: 0 0 50px rgba(0, 255, 204, 0.5);
+            text-align: center;
+            max-width: 600px;
+            width: 90%;
+            border: 2px solid #00ffcc;
+            animation: fadeIn 0.8s;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        
+        .win-code {
+            background: rgba(0, 255, 204, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 1.3rem;
+            letter-spacing: 3px;
+            border: 1px dashed #00ffcc;
+        }
+        
+        .restart-btn {
+            background: linear-gradient(135deg, #ff6600, #cc5200);
+            color: white;
+            margin-top: 20px;
+        }
+        
+        .restart-btn:hover {
+            background: linear-gradient(135deg, #ff8533, #e65c00);
+        }
+        
+        /* لوحة المتصدرين */
+        .leaderboard-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(255, 204, 0, 0.2);
+            color: #ffcc00;
+            border: 1px solid #ffcc00;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            z-index: 100;
+            font-weight: bold;
+        }
+        
+        .leaderboard-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 2000;
+            display: none;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .leaderboard-content {
+            background: rgba(20, 30, 50, 0.95);
+            padding: 40px;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 600px;
+            border: 2px solid #ffcc00;
+        }
+        
+        .leaderboard-content h2 {
+            color: #ffcc00;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2rem;
+        }
+        
+        .leaderboard-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        
+        .leaderboard-table th {
+            background: rgba(255, 204, 0, 0.2);
+            color: #ffcc00;
+            padding: 15px;
+            text-align: center;
+            border-bottom: 2px solid #ffcc00;
+        }
+        
+        .leaderboard-table td {
+            padding: 12px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 204, 0, 0.3);
+            color: #ffffff;
+        }
+        
+        .leaderboard-table tr:nth-child(1) td {
+            background: rgba(255, 215, 0, 0.2);
+            color: #ffd700;
+            font-weight: bold;
+        }
+        
+        /* تأثيرات الحركة */
+        .fade-out {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+        
+        .fade-in {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-10px); }
+            20%, 40%, 60%, 80% { transform: translateX(10px); }
+        }
+        
+        /* تصميم متجاوب */
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                gap: 15px;
+                padding: 15px;
+            }
+            
+            .stats-container {
+                width: 100%;
+                justify-content: space-between;
+            }
+            
+            .container {
+                margin: 20px auto;
+                padding: 0 15px;
+            }
+            
+            #box {
+                padding: 25px;
+            }
+            
+            .buttons {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            button {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            #question {
+                font-size: 1.3rem;
+            }
+            
+            .login-container {
+                padding: 40px 25px;
+            }
+            
+            .leaderboard-btn {
+                position: relative;
+                top: 0;
+                left: 0;
+                margin: 10px auto;
+                display: block;
+                width: fit-content;
+            }
+            
+            .options-container {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* شارة المرحلة السرية */
+        .secret-badge {
+            background: linear-gradient(135deg, #ff00ff, #cc00cc);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            margin-left: 10px;
+            animation: glow 1.5s infinite alternate;
+        }
+        
+        @keyframes glow {
+            from { box-shadow: 0 0 5px #ff00ff; }
+            to { box-shadow: 0 0 15px #ff00ff, 0 0 20px #ff00ff; }
+        }
+        
+        /* شارة نوع السؤال */
+        .question-type {
+            display: inline-block;
+            background: rgba(100, 100, 255, 0.2);
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 0.8rem;
+            margin-left: 10px;
+            border: 1px solid #6666ff;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="matrix"></canvas>
+    
+    <!-- شاشة التحميل -->
+    <div class="loading-screen" id="loadingScreen">
+        <div class="loader"></div>
+        <div style="color: #00ffcc; font-size: 1.2rem; margin-top: 20px;">
+            جاري تحميل الألغاز من السحابة...
+        </div>
+        <div style="color: #66ccff; font-size: 0.9rem; margin-top: 10px;">
+            <i class="fas fa-sync-alt fa-spin"></i> جاري الاتصال بالخادم
+        </div>
+    </div>
+    
+    <!-- شاشة الدخول بكلمة السر -->
+    <div class="login-screen" id="loginScreen">
+        <div class="login-container">
+            <h1><i class="fas fa-user-secret"></i> Protocol X</h1>
+            <p>لعبة الألغاز السرية - النسخة المتطورة</p>
+            <p style="color: #ffcc00; font-size: 0.9rem;">⚠ هذه النسخة تتصل بقاعدة بيانات عالمية</p>
+            
+            <div class="difficulty-select">
+                <label for="difficulty"><i class="fas fa-chart-line"></i> اختر مستوى الصعوبة:</label>
+                <select id="difficulty">
+                    <option value="easy">سهل</option>
+                    <option value="medium" selected>متوسط</option>
+                    <option value="hard">صعب</option>
+                </select>
+            </div>
+            
+            <div class="password-input">
+                <input type="password" id="password" placeholder="أدخل كلمة السر للدخول" autocomplete="off">
+                <div class="password-hint">كلمة السر: matrix</div>
+            </div>
+            
+            <div class="error-message" id="errorMsg"></div>
+            
+            <button class="login-btn" onclick="checkPassword()">
+                <i class="fas fa-unlock"></i> فتح اللعبة
+            </button>
+            
+            <div style="margin-top: 30px; color: #66ccff; font-size: 0.85rem;">
+                <i class="fas fa-info-circle"></i> أسئلة حية من Open Trivia Database API
+            </div>
+        </div>
+    </div>
+    
+    <!-- شاشة القصة -->
+    <div class="story-screen" id="storyScreen">
+        <div class="story-content">
+            <h2 id="storyTitle">البروتوكول السري X</h2>
+            <p id="storyText">
+                أنت <span class="highlight">ضابط مباحث إلكترونية</span> في وحدة الجرائم السيبرانية المتقدمة.<br><br>
+                مهمتك: اختراق <span class="highlight">شبكة "ماتريكس"</span> الإجرامية التي تتحكم في مدينة نيوموبوليس.<br><br>
+                المدير أعطاك 50 بروتوكولًا أمنيًا يجب اختراقها للوصول إلى <span class="highlight">الخادم الرئيسي</span>.<br><br>
+                استخدم معرفتك في مختلف المجالات للإجابة على الأسئلة العالمية.<br><br>
+                <span style="color:#ff3333">⚠ تحذير:</span> الأسئلة تأتي من قاعدة بيانات عالمية - كن مستعداً لأي شيء!
+            </p>
+            <button class="continue-btn" onclick="closeStory()">
+                <i class="fas fa-play"></i> بدء المهمة
+            </button>
+        </div>
+    </div>
+    
+    <!-- زر لوحة المتصدرين -->
+    <button class="leaderboard-btn" onclick="showLeaderboard()" id="leaderboardBtn" style="display:none;">
+        <i class="fas fa-trophy"></i> المتصدرين
+    </button>
+    
+    <!-- الهيدر المحسن -->
+    <div class="header" style="display: none;" id="gameHeader">
+        <div class="logo">
+            <i class="fas fa-user-secret"></i>
+            <span>Protocol X</span>
+            <div class="difficulty-badge" id="difficultyBadge">متوسط</div>
+        </div>
+        <div class="stats-container">
+            <div class="stat">
+                <i class="fas fa-clock"></i>
+                <span>الوقت: <span id="timer">0</span> ثانية</span>
+            </div>
+            <div class="stat">
+                <i class="fas fa-star"></i>
+                <span>النقاط: <span id="score">0</span></span>
+            </div>
+            <div class="stat">
+                <i class="fas fa-layer-group"></i>
+                <span>المرحلة: <span id="stageNum">1</span>/50</span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- شريط التقدم -->
+    <div class="container" style="display: none;" id="gameContainer">
+        <div class="progress-container">
+            <div>تقدم المهمة</div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+        </div>
+        
+        <!-- صندوق اللغز -->
+        <div id="box" class="fade-in">
+            <div class="stage-info">
+                <h2 id="stageTitle">المرحلة 1</h2>
+                <div class="stage-hint">
+                    <i class="fas fa-lightbulb"></i>
+                    <span id="hintText">اختر الإجابة الصحيحة</span>
+                    <span class="question-type" id="questionType">متعددة</span>
+                </div>
+            </div>
+            <p id="question">جاري تحميل اللغز...</p>
+            
+            <!-- خيارات متعددة -->
+            <div class="options-container" id="optionsContainer" style="display: none;">
+                <!-- سيتم تعبئته بالجافاسكريبت -->
+            </div>
+            
+            <!-- إدخال نصي -->
+            <div class="input-container" id="textInputContainer">
+                <input type="text" id="answer" placeholder="اكتب الإجابة هنا ثم اضغط Enter" autocomplete="off">
+            </div>
+            
+            <div class="buttons">
+                <button id="checkBtn" onclick="checkAnswer()">
+                    <i class="fas fa-check-circle"></i> تحقق من الإجابة
+                </button>
+                <button id="nextBtn" onclick="nextQuestion()" style="display: none;">
+                    <i class="fas fa-forward"></i> السؤال التالي
+                </button>
+                <button id="hintBtn" onclick="showHint()">
+                    <i class="fas fa-question-circle"></i> مساعدة (<span id="hintCounter">3</span>/3)
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- شاشة النهاية -->
+    <div class="end-screen" id="endScreen">
+        <div class="end-content">
+            <h1><i class="fas fa-trophy"></i> مهمة مكتملة!</h1>
+            <p>لقد نجحت في اختراق جميع بروتوكولات الأمان!</p>
+            
+            <div style="margin: 30px 0;">
+                <h3><i class="fas fa-star"></i> النقاط النهائية: <span id="finalScore">0</span></h3>
+                <h3><i class="fas fa-clock"></i> الوقت الإجمالي: <span id="finalTime">0</span> ثانية</h3>
+                <h3><i class="fas fa-bolt"></i> مستوى الصعوبة: <span id="finalDifficulty">متوسط</span></h3>
+                <h3><i class="fas fa-brain"></i> نسبة النجاح: <span id="successRate">0</span>%</h3>
+                <h3><i class="fas fa-database"></i> الأسئلة المستخدمة: <span id="questionsCount">0</span> سؤال</h3>
+            </div>
+            
+            <div class="win-code">
+                <div>كود التحقق الخاص بالمهمة:</div>
+                <div style="font-weight: bold; color: #00ffcc; font-size: 1.5rem;">API-HACKER-ELITE</div>
+            </div>
+            
+            <button class="restart-btn" onclick="restartGame()">
+                <i class="fas fa-redo"></i> مهمة جديدة
+            </button>
+            <button class="login-btn" onclick="showLeaderboard()" style="margin-top: 10px;">
+                <i class="fas fa-trophy"></i> عرض لوحة المتصدرين
+            </button>
+        </div>
+    </div>
+    
+    <!-- لوحة المتصدرين -->
+    <div class="leaderboard-screen" id="leaderboardScreen">
+        <div class="leaderboard-content">
+            <h2><i class="fas fa-trophy"></i> أفضل 10 محققين</h2>
+            <table class="leaderboard-table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>اسم المحقق</th>
+                        <th>النقاط</th>
+                        <th>الوقت</th>
+                        <th>المستوى</th>
+                    </tr>
+                </thead>
+                <tbody id="leaderboardBody">
+                    <!-- سيتم تعبئته بالجافاسكريبت -->
+                </tbody>
+            </table>
+            <div style="margin-top: 20px; text-align: center;">
+                <button class="continue-btn" onclick="closeLeaderboard()">
+                    <i class="fas fa-times"></i> إغلاق
+                </button>
+                <button class="login-btn" onclick="clearLeaderboard()" style="margin-left: 10px; background: linear-gradient(135deg, #ff3333, #cc0000);">
+                    <i class="fas fa-trash"></i> مسح السجلات
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- الفوتر -->
+    <footer id="gameFooter" style="display: none;">
+        <span>وحدة الجرائم الإلكترونية | النسخة API المتطورة</span>
+        <div class="social-icons">
+            <a href="#" title="مصدر الأسئلة"><i class="fas fa-database"></i></a>
+            <a href="#" title="مركز المساعدة"><i class="fas fa-headset"></i></a>
+            <a href="#" title="التواصل مع القسم"><i class="fas fa-phone-alt"></i></a>
+        </div>
+    </footer>
+
+    <script>
+        // === إعدادات اللعبة ===
+        const SECRET_PASSWORD = "matrix";
+        let currentStage = 0;
+        let score = 0;
+        let totalTime = 0;
+        let stageTime = 0;
+        let gameActive = false;
+        let hintsUsed = 0;
+        let totalHints = 3;
+        let correctAnswers = 0;
+        let selectedDifficulty = "medium";
+        let secretStageUnlocked = false;
+        let fastAnswersCount = 0;
+        let playerName = "المحقق";
+        let questions = [];
+        let currentQuestionIndex = 0;
+        let answerRevealed = false;
+        let usedCategories = new Set();
+        
+        // === API URLs ===
+        const API_URLS = {
+            easy: "https://opentdb.com/api.php?amount=50&difficulty=easy&type=multiple",
+            medium: "https://opentdb.com/api.php?amount=50&difficulty=medium&type=multiple",
+            hard: "https://opentdb.com/api.php?amount=50&difficulty=hard&type=multiple"
+        };
+        
+        // === نظام المستويات ===
+        const difficulties = {
+            easy: {
+                name: "سهل",
+                hintPenalty: 2,
+                timeBonusMultiplier: 1.2,
+                unlimitedHints: true,
+                color: "#00ff66",
+                apiUrl: API_URLS.easy
+            },
+            medium: {
+                name: "متوسط",
+                hintPenalty: 5,
+                timeBonusMultiplier: 1.0,
+                unlimitedHints: false,
+                color: "#ffcc00",
+                apiUrl: API_URLS.medium
+            },
+            hard: {
+                name: "صعب",
+                hintPenalty: 8,
+                timeBonusMultiplier: 0.8,
+                unlimitedHints: false,
+                color: "#ff3333",
+                apiUrl: API_URLS.hard
+            }
+        };
+        
+        // === فك تشفير HTML ===
+        function decodeHTML(text) {
+            const txt = document.createElement("textarea");
+            txt.innerHTML = text;
+            return txt.value;
+        }
+        
+        // === تحميل الأسئلة من API ===
+        async function loadQuestionsFromAPI() {
+            try {
+                document.getElementById("loadingScreen").style.display = "flex";
+                
+                const difficulty = selectedDifficulty;
+                const apiUrl = difficulties[difficulty].apiUrl;
+                
+                // إضافة لغة الإنجليزي للتنوع
+                const response = await fetch(apiUrl);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                if (data.response_code === 0) {
+                    questions = data.results.map(q => ({
+                        question: decodeHTML(q.question),
+                        correct_answer: decodeHTML(q.correct_answer),
+                        incorrect_answers: q.incorrect_answers.map(a => decodeHTML(a)),
+                        category: decodeHTML(q.category),
+                        difficulty: q.difficulty,
+                        type: q.type
+                    }));
+                    
+                    // إضافة بعض الأسئلة بالعربية يدوياً للتنوع
+                    addArabicQuestions();
+                    
+                    console.log(`تم تحميل ${questions.length} سؤالاً`);
+                    document.getElementById("loadingScreen").style.display = "none";
+                    return true;
+                } else {
+                    throw new Error("فشل في جلب الأسئلة من API");
+                }
+            } catch (error) {
+                console.error("خطأ في تحميل الأسئلة:", error);
+                
+                // استخدام أسئلة احتياطية إذا فشل API
+                loadBackupQuestions();
+                document.getElementById("loadingScreen").style.display = "none";
+                return true;
+            }
+        }
+        
+        // === أسئلة احتياطية ===
+        function loadBackupQuestions() {
+            questions = [
+                {
+                    question: "ما هو العاصمة الرسمية لفرنسا؟",
+                    correct_answer: "باريس",
+                    incorrect_answers: ["لندن", "برلين", "روما"],
+                    category: "الجغرافيا",
+                    difficulty: "easy",
+                    type: "multiple"
+                },
+                {
+                    question: "كم عدد الكواكب في النظام الشمسي؟",
+                    correct_answer: "8",
+                    incorrect_answers: ["7", "9", "10"],
+                    category: "العلم",
+                    difficulty: "easy",
+                    type: "multiple"
+                },
+                {
+                    question: "من هو مؤلف رواية البؤساء؟",
+                    correct_answer: "فيكتور هوغو",
+                    incorrect_answers: ["شارلز ديكنز", "ليو تولستوي", "جي دي موباسان"],
+                    category: "الأدب",
+                    difficulty: "medium",
+                    type: "multiple"
+                },
+                {
+                    question: "ما هو العنصر الكيميائي الذي رمزه 'O'؟",
+                    correct_answer: "الأكسجين",
+                    incorrect_answers: ["الذهب", "الحديد", "الكربون"],
+                    category: "الكيمياء",
+                    difficulty: "easy",
+                    type: "multiple"
+                },
+                {
+                    question: "في أي عام هبط الإنسان على القمر لأول مرة؟",
+                    correct_answer: "1969",
+                    incorrect_answers: ["1959", "1979", "1989"],
+                    category: "التاريخ",
+                    difficulty: "medium",
+                    type: "multiple"
+                },
+                {
+                    question: "ما هي أكبر محيط في العالم؟",
+                    correct_answer: "المحيط الهادئ",
+                    incorrect_answers: ["المحيط الأطلسي", "المحيط الهندي", "المحيط المتجمد الشمالي"],
+                    category: "الجغرافيا",
+                    difficulty: "easy",
+                    type: "multiple"
+                },
+                {
+                    question: "من رسم لوحة الموناليزا؟",
+                    correct_answer: "ليوناردو دا فينشي",
+                    incorrect_answers: ["بيكاسو", "فان جوخ", "مونيه"],
+                    category: "الفن",
+                    difficulty: "medium",
+                    type: "multiple"
+                },
+                {
+                    question: "ما هو أسرع حيوان بري؟",
+                    correct_answer: "الفهد",
+                    incorrect_answers: ["الأسد", "النمر", "الظبي"],
+                    category: "الحيوانات",
+                    difficulty: "easy",
+                    type: "multiple"
+                },
+                {
+                    question: "ما هو أعلى جبل في العالم؟",
+                    correct_answer: "إفرست",
+                    incorrect_answers: ["كي 2", "كانغشينجونغا", "لوتسي"],
+                    category: "الجغرافيا",
+                    difficulty: "easy",
+                    type: "multiple"
+                },
+                {
+                    question: "من هو مخترع المصباح الكهربائي؟",
+                    correct_answer: "توماس إديسون",
+                    incorrect_answers: ["نيكولا تسلا", "ألكسندر جراهام بيل", "ماري كوري"],
+                    category: "التاريخ",
+                    difficulty: "medium",
+                    type: "multiple"
+                }
+            ];
+            
+            // تكرار الأسئلة للوصول إلى 50 سؤالاً
+            const repeatedQuestions = [];
+            for (let i = 0; i < 5; i++) {
+                repeatedQuestions.push(...questions);
+            }
+            questions = repeatedQuestions.slice(0, 50);
+        }
+        
+        // === إضافة أسئلة عربية ===
+        function addArabicQuestions() {
+            const arabicQuestions = [
+                {
+                    question: "ما هي عاصمة المملكة العربية السعودية؟",
+                    correct_answer: "الرياض",
+                    incorrect_answers: ["جدة", "الدمام", "مكة"],
+                    category: "الجغرافيا العربية",
+                    difficulty: "easy",
+                    type: "multiple"
+                },
+                {
+                    question: "كم عدد سور القرآن الكريم؟",
+                    correct_answer: "114",
+                    incorrect_answers: ["112", "115", "120"],
+                    category: "الدين",
+                    difficulty: "easy",
+                    type: "multiple"
+                },
+                {
+                    question: "من هو شاعر الرسول صلى الله عليه وسلم؟",
+                    correct_answer: "حسان بن ثابت",
+                    incorrect_answers: ["عمر بن أبي ربيعة", "امرؤ القيس", "عنترة بن شداد"],
+                    category: "الأدب العربي",
+                    difficulty: "medium",
+                    type: "multiple"
+                },
+                {
+                    question: "ما هي أطول سورة في القرآن الكريم؟",
+                    correct_answer: "البقرة",
+                    incorrect_answers: ["النساء", "آل عمران", "المائدة"],
+                    category: "الدين",
+                    difficulty: "medium",
+                    type: "multiple"
+                },
+                {
+                    question: "من هو مؤسس الدولة الأموية؟",
+                    correct_answer: "معاوية بن أبي سفيان",
+                    incorrect_answers: ["عمر بن عبد العزيز", "عبد الملك بن مروان", "يزيد بن معاوية"],
+                    category: "التاريخ العربي",
+                    difficulty: "hard",
+                    type: "multiple"
+                }
+            ];
+            
+            // استبدال بعض الأسئلة بأسئلة عربية
+            for (let i = 0; i < arabicQuestions.length && i < questions.length; i += 10) {
+                questions[i] = arabicQuestions[Math.floor(i/10)];
+            }
+        }
+        
+        // === التحقق من كلمة السر ===
+        async function checkPassword() {
+            const passwordInput = document.getElementById("password").value.trim().toLowerCase();
+            const errorMsg = document.getElementById("errorMsg");
+            selectedDifficulty = document.getElementById("difficulty").value;
+            
+            if (passwordInput === SECRET_PASSWORD) {
+                // تحميل الأسئلة من API
+                const loaded = await loadQuestionsFromAPI();
+                
+                if (loaded) {
+                    // تحميل التقدم المحفوظ
+                    loadGameProgress();
+                    
+                    // دخول ناجح
+                    document.getElementById("loginScreen").style.display = "none";
+                    document.getElementById("storyScreen").style.display = "flex";
+                    document.getElementById("leaderboardBtn").style.display = "block";
+                    
+                    // ضبط التلميحات حسب المستوى
+                    totalHints = difficulties[selectedDifficulty].unlimitedHints ? 999 : 3;
+                    
+                    // تحديث واجهة المستخدم
+                    document.getElementById("difficultyBadge").innerText = difficulties[selectedDifficulty].name;
+                    document.getElementById("difficultyBadge").style.background = `rgba(${
+                        selectedDifficulty === 'easy' ? '0,255,102' : 
+                        selectedDifficulty === 'medium' ? '255,204,0' : '255,51,51'
+                    }, 0.3)`;
+                    
+                    playSound("success");
+                } else {
+                    errorMsg.innerHTML = "❌ فشل تحميل الأسئلة. حاول مرة أخرى.";
+                }
+            } else {
+                // دخول فاشل
+                errorMsg.innerHTML = "❌ كلمة سر خاطئة! حاول مرة أخرى.";
+                document.getElementById("password").style.borderColor = "#ff3300";
+                document.getElementById("password").style.animation = "shake 0.5s";
+                document.getElementById("password").value = "";
+                
+                setTimeout(() => {
+                    document.getElementById("password").style.animation = "";
+                    document.getElementById("password").style.borderColor = "#00ffcc";
+                    errorMsg.innerHTML = "";
+                }, 2000);
+                
+                playSound("error");
+            }
+        }
+        
+        // === حفظ التقدم ===
+        function saveGameProgress() {
+            const progress = {
+                stage: currentStage,
+                score: score,
+                time: totalTime,
+                hintsUsed: hintsUsed,
+                difficulty: selectedDifficulty,
+                correctAnswers: correctAnswers,
+                secretStageUnlocked: secretStageUnlocked,
+                currentQuestionIndex: currentQuestionIndex,
+                date: new Date().toISOString()
+            };
+            localStorage.setItem('protocolX_progress', JSON.stringify(progress));
+        }
+        
+        // === تحميل التقدم ===
+        function loadGameProgress() {
+            const saved = JSON.parse(localStorage.getItem('protocolX_progress'));
+            if (saved) {
+                if (confirm("تم العثور على تقدم محفوظ. هل تريد الاستمرار من حيث توقفت؟")) {
+                    currentStage = saved.stage || 0;
+                    score = saved.score || 0;
+                    totalTime = saved.time || 0;
+                    hintsUsed = saved.hintsUsed || 0;
+                    selectedDifficulty = saved.difficulty || "medium";
+                    correctAnswers = saved.correctAnswers || 0;
+                    secretStageUnlocked = saved.secretStageUnlocked || false;
+                    currentQuestionIndex = saved.currentQuestionIndex || 0;
+                    
+                    // تحديث الواجهة
+                    document.getElementById("score").innerText = score;
+                    document.getElementById("timer").innerText = totalTime;
+                    document.getElementById("difficulty").value = selectedDifficulty;
+                } else {
+                    // بدء لعبة جديدة
+                    resetGameProgress();
+                }
+            }
+        }
+        
+        // === مسح التقدم ===
+        function resetGameProgress() {
+            currentStage = 0;
+            score = 0;
+            totalTime = 0;
+            hintsUsed = 0;
+            correctAnswers = 0;
+            secretStageUnlocked = false;
+            fastAnswersCount = 0;
+            currentQuestionIndex = 0;
+            
+            localStorage.removeItem('protocolX_progress');
+        }
+        
+        // === إغلاق شاشة القصة وبدء اللعبة ===
+        function closeStory() {
+            document.getElementById("storyScreen").style.display = "none";
+            document.getElementById("gameHeader").style.display = "flex";
+            document.getElementById("gameContainer").style.display = "block";
+            document.getElementById("gameFooter").style.display = "flex";
+            
+            gameActive = true;
+            loadQuestion();
+            startTimer();
+            createParticles(50);
+        }
+        
+        // === تحميل السؤال ===
+        function loadQuestion() {
+            if (!gameActive || !questions.length) return;
+            
+            if (currentQuestionIndex >= questions.length) {
+                finishGame();
+                return;
+            }
+            
+            const question = questions[currentQuestionIndex];
+            answerRevealed = false;
+            
+            // تحديث واجهة المستخدم
+            document.getElementById("stageTitle").innerText = `المرحلة ${currentStage + 1}`;
+            document.getElementById("stageNum").innerText = currentStage + 1;
+            document.getElementById("question").innerHTML = `
+                ${question.question}
+                <div style="font-size: 0.9rem; color: #66ccff; margin-top: 10px;">
+                    <i class="fas fa-tag"></i> ${question.category} | 
+                    <i class="fas fa-signal"></i> ${question.difficulty}
+                </div>
+            `;
+            
+            // تحديد نوع السؤال
+            document.getElementById("questionType").innerText = question.type === "multiple" ? "متعددة" : "صح/خطأ";
+            
+            if (question.type === "multiple") {
+                // عرض خيارات متعددة
+                document.getElementById("optionsContainer").style.display = "grid";
+                document.getElementById("textInputContainer").style.display = "none";
+                document.getElementById("checkBtn").style.display = "flex";
+                document.getElementById("nextBtn").style.display = "none";
+                
+                // خلط الإجابات
+                const allAnswers = [question.correct_answer, ...question.incorrect_answers];
+                const shuffledAnswers = shuffleArray([...allAnswers]);
+                
+                // إنشاء أزرار الخيارات
+                const optionsContainer = document.getElementById("optionsContainer");
+                optionsContainer.innerHTML = "";
+                
+                shuffledAnswers.forEach((answer, index) => {
+                    const button = document.createElement("button");
+                    button.className = "option-btn";
+                    button.innerHTML = answer;
+                    button.dataset.answer = answer;
+                    button.onclick = () => selectAnswer(answer);
+                    optionsContainer.appendChild(button);
+                });
+            } else {
+                // سؤال صح/خطأ أو نصي
+                document.getElementById("optionsContainer").style.display = "none";
+                document.getElementById("textInputContainer").style.display = "block";
+                document.getElementById("checkBtn").style.display = "flex";
+                document.getElementById("nextBtn").style.display = "none";
+                document.getElementById("answer").value = "";
+                document.getElementById("answer").focus();
+            }
+            
+            // تحديث عدد التلميحات المتبقية
+            const hintsLeft = totalHints - hintsUsed;
+            document.getElementById("hintCounter").innerText = difficulties[selectedDifficulty].unlimitedHints ? "∞" : hintsLeft;
+            document.getElementById("hintBtn").innerHTML = `<i class="fas fa-question-circle"></i> مساعدة (<span id="hintCounter">${difficulties[selectedDifficulty].unlimitedHints ? "∞" : hintsLeft}</span>/${difficulties[selectedDifficulty].unlimitedHints ? "∞" : totalHints})`;
+            
+            // تحديث شريط التقدم
+            const progressPercent = ((currentStage + 1) / 50) * 100;
+            document.getElementById("progressFill").style.width = `${progressPercent}%`;
+            
+            stageTime = 0;
+            
+            // حفظ التقدم تلقائياً
+            saveGameProgress();
+        }
+        
+        // === اختيار إجابة (لأسئلة متعددة) ===
+        function selectAnswer(selectedAnswer) {
+            if (answerRevealed) return;
+            
+            const question = questions[currentQuestionIndex];
+            const isCorrect = selectedAnswer === question.correct_answer;
+            
+            // تلوين الأزرار
+            const options = document.querySelectorAll('.option-btn');
+            options.forEach(btn => {
+                if (btn.dataset.answer === question.correct_answer) {
+                    btn.classList.add('correct');
+                } else if (btn.dataset.answer === selectedAnswer && !isCorrect) {
+                    btn.classList.add('wrong');
+                }
+                btn.style.pointerEvents = 'none';
+            });
+            
+            answerRevealed = true;
+            document.getElementById("checkBtn").style.display = "none";
+            document.getElementById("nextBtn").style.display = "flex";
+            
+            // معالجة الإجابة
+            if (isCorrect) {
+                handleCorrectAnswer();
+            } else {
+                handleWrongAnswer();
+            }
+        }
+        
+        // === التحقق من الإجابة النصية ===
+        function checkAnswer() {
+            if (!gameActive || answerRevealed) return;
+            
+            const userAnswer = document.getElementById("answer").value.trim().toLowerCase();
+            const question = questions[currentQuestionIndex];
+            const correctAnswer = question.correct_answer.toLowerCase();
+            
+            // مقارنة متساهلة للإجابات
+            const normalizedUserAnswer = userAnswer.replace(/[^a-z0-9أ-ي]/g, '');
+            const normalizedCorrectAnswer = correctAnswer.replace(/[^a-z0-9أ-ي]/g, '');
+            
+            if (normalizedUserAnswer === normalizedCorrectAnswer || 
+                userAnswer === correctAnswer ||
+                isCloseMatch(userAnswer, correctAnswer)) {
+                
+                handleCorrectAnswer();
+            } else {
+                handleWrongAnswer();
+            }
+            
+            answerRevealed = true;
+            document.getElementById("checkBtn").style.display = "none";
+            document.getElementById("nextBtn").style.display = "flex";
+        }
+        
+        // === مقارنة متساهلة للإجابات ===
+        function isCloseMatch(userAnswer, correctAnswer) {
+            // يمكن إضافة منطق أكثر ذكاءً هنا
+            const commonAliases = {
+                "paris": ["باريس", "paris"],
+                "8": ["ثمانية", "ثماني"],
+                "victor hugo": ["فيكتور هوغو", "فيكتور هوجو"],
+                "oxygen": ["أكسجين", "اوكسجين"],
+                "1969": ["الف وتسعمائة وتسعة وستون"],
+                "pacific ocean": ["المحيط الهادئ", "باسيفيك"],
+                "leonardo da vinci": ["ليوناردو دا فنشي", "ليوناردو دافنشي"],
+                "cheetah": ["فهد", "شيته"],
+                "mount everest": ["إفرست", "جبل افرست"],
+                "thomas edison": ["توماس إديسون", "توماس اديسون"]
+            };
+            
+            const lowerUser = userAnswer.toLowerCase();
+            const lowerCorrect = correctAnswer.toLowerCase();
+            
+            // التحقق من المرادفات الشائعة
+            if (commonAliases[lowerCorrect]) {
+                return commonAliases[lowerCorrect].includes(lowerUser);
+            }
+            
+            // مقارنة بسيطة
+            return lowerUser.includes(lowerCorrect) || lowerCorrect.includes(lowerUser);
+        }
+        
+        // === معالجة الإجابة الصحيحة ===
+        function handleCorrectAnswer() {
+            // حساب النقاط بناء على الصعوبة والوقت
+            const difficultyMultiplier = difficulties[selectedDifficulty].timeBonusMultiplier;
+            const timeBonus = Math.max(20 - Math.floor(stageTime / 3), 5) * difficultyMultiplier;
+            score += Math.round(15 + timeBonus);
+            correctAnswers++;
+            
+            // تسجيل الإجابات السريعة
+            if (stageTime < 8) {
+                fastAnswersCount++;
+                if (fastAnswersCount >= 3 && !secretStageUnlocked) {
+                    secretStageUnlocked = true;
+                    alert("🎉 لقد فتحت مرحلة سرية! تحقق من الأسئلة القادمة.");
+                }
+            } else {
+                fastAnswersCount = 0;
+            }
+            
+            // تأثير بصري للإجابة الصحيحة
+            document.getElementById("box").style.boxShadow = "0 0 40px rgba(0, 255, 100, 0.7)";
+            document.getElementById("box").style.borderColor = "#00ff66";
+            
+            // جسيمات نجاح
+            createParticles(20);
+            
+            setTimeout(() => {
+                document.getElementById("box").style.boxShadow = "0 0 30px rgba(0, 255, 204, 0.4)";
+                document.getElementById("box").style.borderColor = "rgba(0, 255, 204, 0.2)";
+            }, 500);
+            
+            // تحديث النقاط
+            document.getElementById("score").innerText = score;
+            
+            playSound("success");
+            
+            // حفظ التقدم
+            saveGameProgress();
+        }
+        
+        // === معالجة الإجابة الخاطئة ===
+        function handleWrongAnswer() {
+            // تأثير للإجابة الخاطئة
+            document.getElementById("box").style.animation = "shake 0.5s";
+            document.getElementById("answer").style.borderColor = "#ff3300";
+            document.getElementById("answer").style.boxShadow = "0 0 10px rgba(255, 50, 0, 0.5)";
+            
+            setTimeout(() => {
+                document.getElementById("box").style.animation = "";
+                document.getElementById("answer").style.borderColor = "#00ffcc";
+                document.getElementById("answer").style.boxShadow = "";
+            }, 500);
+            
+            // خصم نقاط للإجابة الخاطئة حسب الصعوبة
+            const penalty = difficulties[selectedDifficulty].hintPenalty;
+            score = Math.max(score - penalty, 0);
+            document.getElementById("score").innerText = score;
+            
+            // جسيمات خطأ
+            createErrorParticles();
+            
+            // عرض الإجابة الصحيحة
+            const question = questions[currentQuestionIndex];
+            setTimeout(() => {
+                alert(`❌ الإجابة الصحيحة كانت: ${question.correct_answer}\nخسرت ${penalty} نقطة.`);
+            }, 600);
+            
+            playSound("error");
+        }
+        
+        // === الانتقال للسؤال التالي ===
+        function nextQuestion() {
+            currentStage++;
+            currentQuestionIndex++;
+            
+            if (currentStage >= 50) {
+                finishGame();
+            } else {
+                // عرض قصة كل 10 مراحل
+                if (currentStage % 10 === 0) {
+                    showStoryProgress();
+                } else {
+                    // الانتقال العادي
+                    document.getElementById("box").classList.add("fade-out");
+                    setTimeout(() => {
+                        document.getElementById("box").classList.remove("fade-out");
+                        document.getElementById("box").classList.add("fade-in");
+                        loadQuestion();
+                        createParticles(10);
+                    }, 400);
+                }
+            }
+        }
+        
+        // === عرض تلميح ===
+        function showHint() {
+            if (!difficulties[selectedDifficulty].unlimitedHints && hintsUsed >= totalHints) {
+                alert("لقد استخدمت جميع التلميحات المتاحة!");
+                return;
+            }
+            
+            const question = questions[currentQuestionIndex];
+            let hintText = "";
+            
+            if (question.type === "multiple") {
+                // إزالة إجابة خاطئة
+                const options = document.querySelectorAll('.option-btn');
+                const wrongOptions = Array.from(options).filter(btn => 
+                    btn.dataset.answer !== question.correct_answer && 
+                    !btn.classList.contains('wrong')
+                );
+                
+                if (wrongOptions.length > 0) {
+                    const randomWrong = wrongOptions[Math.floor(Math.random() * wrongOptions.length)];
+                    randomWrong.classList.add('wrong');
+                    randomWrong.style.pointerEvents = 'none';
+                    hintText = `تم إزالة إجابة خاطئة: ${randomWrong.dataset.answer}`;
+                }
+            } else {
+                // تلميح نصي
+                const answer = question.correct_answer;
+                if (answer.length > 3) {
+                    const hintLength = Math.floor(answer.length / 2);
+                    const hint = answer.substring(0, hintLength) + "..." + answer.substring(answer.length - 1);
+                    hintText = `التلميح: ${hint}`;
+                } else {
+                    hintText = `الجواب مكون من ${answer.length} حرف${answer.length > 1 ? 'ات' : ''}`;
+                }
+            }
+            
+            if (hintText) {
+                document.getElementById("hintText").innerText = hintText;
+            }
+            
+            hintsUsed++;
+            
+            // تحديث زر التلميح
+            const hintsLeft = totalHints - hintsUsed;
+            document.getElementById("hintCounter").innerText = difficulties[selectedDifficulty].unlimitedHints ? "∞" : hintsLeft;
+            
+            // خصم نقاط عند استخدام تلميح
+            const penalty = difficulties[selectedDifficulty].hintPenalty;
+            score = Math.max(score - penalty, 0);
+            document.getElementById("score").innerText = score;
+            
+            // تأثير التلميح
+            document.getElementById("hintBtn").style.background = "rgba(0, 100, 255, 0.4)";
+            setTimeout(() => {
+                document.getElementById("hintBtn").style.background = "";
+            }, 1000);
+            
+            // جسيمات تلميح
+            createHintParticles();
+            
+            if (hintText) {
+                alert(`💡 ${hintText}\nخسرت ${penalty} نقطة.`);
+            }
+            
+            // حفظ التقدم
+            saveGameProgress();
+        }
+        
+        // === عرض قصة التقدم ===
+        function showStoryProgress() {
+            gameActive = false;
+            const storyTitle = document.getElementById("storyTitle");
+            const storyText = document.getElementById("storyText");
+            
+            if (currentStage === 10) {
+                storyTitle.innerText = "البروتوكول 10/50";
+                storyText.innerHTML = `
+                    أحسنت! لقد اخترقت <span class="highlight">10 بروتوكولات</span> بنجاح.<br><br>
+                    اكتشفت أن الشبكة الإجرامية تستخدم <span class="highlight">خوادم وهمية</span> لتضليل المحققين.<br><br>
+                    المدير يطلب منك التوجه إلى <span class="highlight">القطاع B</span> حيث توجد البيانات الحقيقية.<br><br>
+                    <span style="color:#ff3333">⚠ انتبه:</span> الأسئلة القادمة أكثر صعوبة!
+                `;
+            } else if (currentStage === 20) {
+                storyTitle.innerText = "البروتوكول 20/50";
+                storyText.innerHTML = `
+                    تقدم رائع! <span class="highlight">20 بروتوكولًا</span> تم اختراقها.<br><br>
+                    لقد وصلت إلى <span class="highlight">الخادم المركزي</span> ووجدت بيانات المشتبه بهم.<br><br>
+                    القائد العام يطلب تسريع العملية قبل أن <span class="highlight">يتم محو البيانات</span>.<br><br>
+                    <span style="color:#00ff66">🎯 تحدي:</span> الأسئلة القادمة من مستوى أعلى!
+                `;
+            } else if (currentStage === 30) {
+                storyTitle.innerText = "البروتوكول 30/50";
+                storyText.innerHTML = `
+                    إنجاز ممتاز! <span class="highlight">30 بروتوكولًا</span> لم تصمد أمامك.<br><br>
+                    اكتشفت أن <span class="highlight">"ماتريكس"</span> ليس شخصًا بل برنامج ذكاء اصطناعي.<br><br>
+                    البرنامج يحاول الآن <span class="highlight">تعقب موقعك</span>! يجب الإسراع.<br><br>
+                    <span style="color:#ffcc00">💰 مكافأة:</span> نقاط مضاعفة للأسئلة الصعبة!
+                `;
+            } else if (currentStage === 40) {
+                storyTitle.innerText = "البروتوكول 40/50";
+                storyText.innerHTML = `
+                    <span class="highlight">40 بروتوكولًا</span> وتبقى 10 فقط للفوز!<br><br>
+                    أنت على وشك اختراق <span class="highlight">الخادم الرئيسي</span> حيث توجد جميع الأسرار.<br><br>
+                    وحدة الدعم التقني ترسل لك <span class="highlight">أدوات متطورة</span> للمراحل الأخيرة.<br><br>
+                    <span style="color:#ff3333">🚨 إنذار أخير:</span> الأسئلة الأخيرة هي الأصعب!
+                `;
+            }
+            
+            document.getElementById("storyScreen").style.display = "flex";
+            document.getElementById("continueBtn").innerHTML = '<i class="fas fa-forward"></i> تابع المهمة';
+        }
+        
+        // === انتهاء اللعبة ===
+        function finishGame() {
+            gameActive = false;
+            
+            // تحديث شاشة النهاية
+            document.getElementById("finalScore").innerText = score;
+            document.getElementById("finalTime").innerText = totalTime;
+            document.getElementById("finalDifficulty").innerText = difficulties[selectedDifficulty].name;
+            document.getElementById("questionsCount").innerText = currentQuestionIndex;
+            
+            // حساب نسبة النجاح
+            const successRate = Math.round((correctAnswers / currentQuestionIndex) * 100) || 0;
+            document.getElementById("successRate").innerText = successRate;
+            
+            // حفظ النتيجة في لوحة المتصدرين
+            saveToLeaderboard();
+            
+            // عرض شاشة النهاية
+            document.getElementById("endScreen").style.display = "flex";
+            
+            // تأثيرات النصر
+            createConfetti();
+            playSound("success");
+            
+            // مسح التقدم بعد الانتهاء
+            localStorage.removeItem('protocolX_progress');
+        }
+        
+        // === إعادة تشغيل اللعبة ===
+        async function restartGame() {
+            resetGameProgress();
+            
+            // إعادة تحميل الأسئلة
+            await loadQuestionsFromAPI();
+            
+            gameActive = true;
+            
+            document.getElementById("score").innerText = score;
+            document.getElementById("timer").innerText = totalTime;
+            document.getElementById("endScreen").style.display = "none";
+            document.getElementById("gameHeader").style.display = "flex";
+            document.getElementById("gameContainer").style.display = "block";
+            
+            loadQuestion();
+            createParticles(30);
+        }
+        
+        // === لوحة المتصدرين ===
+        function saveToLeaderboard() {
+            const leaderboard = JSON.parse(localStorage.getItem('protocolX_leaderboard')) || [];
+            
+            const playerEntry = {
+                name: playerName,
+                score: score,
+                time: totalTime,
+                difficulty: selectedDifficulty,
+                date: new Date().toLocaleDateString('ar-SA'),
+                successRate: Math.round((correctAnswers / currentQuestionIndex) * 100) || 0,
+                questions: currentQuestionIndex
+            };
+            
+            leaderboard.push(playerEntry);
+            
+            // ترتيب حسب النقاط (تنازلي)
+            leaderboard.sort((a, b) => b.score - a.score);
+            
+            // حفظ أفضل 10 فقط
+            localStorage.setItem('protocolX_leaderboard', JSON.stringify(leaderboard.slice(0, 10)));
+        }
+        
+        function showLeaderboard() {
+            const leaderboard = JSON.parse(localStorage.getItem('protocolX_leaderboard')) || [];
+            const tableBody = document.getElementById("leaderboardBody");
+            
+            tableBody.innerHTML = "";
+            
+            if (leaderboard.length === 0) {
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="5" style="color: #aaa; padding: 30px;">
+                            <i class="fas fa-trophy" style="font-size: 2rem; margin-bottom: 10px; display: block;"></i>
+                            لا توجد سجلات حتى الآن!<br>
+                            كن أول من يكمل المهمة.
+                        </td>
+                    </tr>
+                `;
+            } else {
+                leaderboard.forEach((entry, index) => {
+                    const row = document.createElement("tr");
+                    
+                    // تلوين المركز الأول
+                    const medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : (index + 1) + '.';
+                    
+                    row.innerHTML = `
+                        <td>${medal}</td>
+                        <td><strong>${entry.name}</strong></td>
+                        <td style="color: #00ffcc;">${entry.score}</td>
+                        <td>${entry.time} ث</td>
+                        <td><span style="color: ${
+                            entry.difficulty === 'easy' ? '#00ff66' : 
+                            entry.difficulty === 'medium' ? '#ffcc00' : '#ff3333'
+                        }">${difficulties[entry.difficulty].name}</span></td>
+                    `;
+                    
+                    tableBody.appendChild(row);
+                });
+            }
+            
+            document.getElementById("leaderboardScreen").style.display = "flex";
+        }
+        
+        function closeLeaderboard() {
+            document.getElementById("leaderboardScreen").style.display = "none";
+        }
+        
+        function clearLeaderboard() {
+            if (confirm("هل أنت متأكد من مسح جميع سجلات المتصدرين؟")) {
+                localStorage.removeItem('protocolX_leaderboard');
+                showLeaderboard();
+                alert("تم مسح لوحة المتصدرين.");
+            }
+        }
+        
+        // === أدوات مساعدة ===
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+        
+        function startTimer() {
+            setInterval(() => {
+                if (gameActive) {
+                    totalTime++;
+                    stageTime++;
+                    document.getElementById("timer").innerText = totalTime;
+                }
+            }, 1000);
+        }
+        
+        // === تأثيرات الجسيمات ===
+        function createParticles(count) {
+            const box = document.getElementById("box");
+            const rect = box.getBoundingClientRect();
+            
+            for (let i = 0; i < count; i++) {
+                const particle = document.createElement("div");
+                particle.classList.add("particle");
+                
+                particle.style.left = `${rect.left + Math.random() * rect.width}px`;
+                particle.style.top = `${rect.top + Math.random() * rect.height}px`;
+                
+                const size = Math.random() * 6 + 2;
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+                particle.style.backgroundColor = `hsl(${Math.random() * 60 + 150}, 100%, 60%)`;
+                
+                document.body.appendChild(particle);
+                
+                const angle = Math.random() * Math.PI * 2;
+                const speed = Math.random() * 3 + 2;
+                const dx = Math.cos(angle) * speed;
+                const dy = Math.sin(angle) * speed;
+                
+                let posX = parseFloat(particle.style.left);
+                let posY = parseFloat(particle.style.top);
+                
+                const animate = () => {
+                    posX += dx;
+                    posY += dy;
+                    particle.style.left = `${posX}px`;
+                    particle.style.top = `${posY}px`;
+                    particle.style.opacity = parseFloat(particle.style.opacity || 1) - 0.02;
+                    
+                    if (parseFloat(particle.style.opacity || 1) > 0) {
+                        requestAnimationFrame(animate);
+                    } else {
+                        particle.remove();
+                    }
+                };
+                
+                animate();
+            }
+        }
+        
+        // === جسيمات الخطأ ===
+        function createErrorParticles() {
+            const box = document.getElementById("box");
+            const rect = box.getBoundingClientRect();
+            
+            for (let i = 0; i < 15; i++) {
+                const particle = document.createElement("div");
+                particle.classList.add("particle");
+                particle.style.left = `${rect.left + rect.width / 2}px`;
+                particle.style.top = `${rect.top + rect.height / 2}px`;
+                particle.style.backgroundColor = `hsl(${Math.random() * 30}, 100%, 60%)`;
+                
+                document.body.appendChild(particle);
+                
+                const angle = Math.random() * Math.PI * 2;
+                const speed = Math.random() * 4 + 3;
+                const dx = Math.cos(angle) * speed;
+                const dy = Math.sin(angle) * speed;
+                
+                let posX = parseFloat(particle.style.left);
+                let posY = parseFloat(particle.style.top);
+                
+                const animate = () => {
+                    posX += dx;
+                    posY += dy;
+                    particle.style.left = `${posX}px`;
+                    particle.style.top = `${posY}px`;
+                    particle.style.opacity = parseFloat(particle.style.opacity || 1) - 0.03;
+                    
+                    if (parseFloat(particle.style.opacity || 1) > 0) {
+                        requestAnimationFrame(animate);
+                    } else {
+                        particle.remove();
+                    }
+                };
+                
+                animate();
+            }
+        }
+        
+        // === جسيمات التلميح ===
+        function createHintParticles() {
+            const box = document.getElementById("box");
+            const rect = box.getBoundingClientRect();
+            
+            for (let i = 0; i < 10; i++) {
+                const particle = document.createElement("div");
+                particle.classList.add("particle");
+                particle.style.left = `${rect.left + rect.width / 2}px`;
+                particle.style.top = `${rect.top + rect.height / 2}px`;
+                particle.style.backgroundColor = `hsl(${Math.random() * 60 + 200}, 100%, 60%)`;
+                
+                document.body.appendChild(particle);
+                
+                const angle = Math.random() * Math.PI * 2;
+                const speed = Math.random() * 2 + 1;
+                const dx = Math.cos(angle) * speed;
+                const dy = Math.sin(angle) * speed;
+                
+                let posX = parseFloat(particle.style.left);
+                let posY = parseFloat(particle.style.top);
+                
+                const animate = () => {
+                    posX += dx;
+                    posY += dy;
+                    particle.style.left = `${posX}px`;
+                    particle.style.top = `${posY}px`;
+                    particle.style.opacity = parseFloat(particle.style.opacity || 1) - 0.02;
+                    
+                    if (parseFloat(particle.style.opacity || 1) > 0) {
+                        requestAnimationFrame(animate);
+                    } else {
+                        particle.remove();
+                    }
+                };
+                
+                animate();
+            }
+        }
+        
+        // === تأثيرات الانتصار ===
+        function createConfetti() {
+            const colors = ["#00ffcc", "#0066ff", "#ff0066", "#00ff66", "#ffcc00", "#cc00ff"];
+            
+            for (let i = 0; i < 150; i++) {
+                const confetti = document.createElement("div");
+                confetti.classList.add("particle");
+                
+                confetti.style.left = `${Math.random() * window.innerWidth}px`;
+                confetti.style.top = `${-10}px`;
+                
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                
+                if (Math.random() > 0.5) {
+                    confetti.style.borderRadius = "50%";
+                } else {
+                    confetti.style.borderRadius = "0";
+                }
+                
+                const size = Math.random() * 12 + 5;
+                confetti.style.width = `${size}px`;
+                confetti.style.height = `${size}px`;
+                
+                document.body.appendChild(confetti);
+                
+                const angle = Math.random() * Math.PI * 2;
+                const speed = Math.random() * 5 + 2;
+                const dx = Math.cos(angle) * speed;
+                const dy = Math.sin(angle) * speed + 2;
+                
+                let posX = parseFloat(confetti.style.left);
+                let posY = parseFloat(confetti.style.top);
+                
+                const animateConfetti = () => {
+                    posX += dx;
+                    posY += dy;
+                    confetti.style.left = `${posX}px`;
+                    confetti.style.top = `${posY}px`;
+                    
+                    confetti.style.transform = `rotate(${posX + posY}deg)`;
+                    
+                    if (posY < window.innerHeight) {
+                        requestAnimationFrame(animateConfetti);
+                    } else {
+                        confetti.remove();
+                    }
+                };
+                
+                animateConfetti();
+            }
+        }
+        
+        // === تشغيل الأصوات ===
+        function playSound(type) {
+            try {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                
+                if (type === "success") {
+                    const oscillator = audioContext.createOscillator();
+                    const gainNode = audioContext.createGain();
+                    
+                    oscillator.connect(gainNode);
+                    gainNode.connect(audioContext.destination);
+                    
+                    oscillator.frequency.value = 800;
+                    oscillator.type = 'sine';
+                    
+                    gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+                    
+                    oscillator.start(audioContext.currentTime);
+                    oscillator.stop(audioContext.currentTime + 0.5);
+                    
+                } else if (type === "error") {
+                    const oscillator = audioContext.createOscillator();
+                    const gainNode = audioContext.createGain();
+                    
+                    oscillator.connect(gainNode);
+                    gainNode.connect(audioContext.destination);
+                    
+                    oscillator.frequency.value = 300;
+                    oscillator.type = 'sawtooth';
+                    
+                    gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+                    
+                    oscillator.start(audioContext.currentTime);
+                    oscillator.stop(audioContext.currentTime + 0.3);
+                }
+            } catch (e) {
+                console.log("Audio not supported");
+            }
+        }
+        
+        // === السماح بالدخول بالزر Enter ===
+        document.getElementById("password").addEventListener("keypress", function(e) {
+            if (e.key === "Enter") {
+                checkPassword();
+            }
+        });
+        
+        document.getElementById("answer").addEventListener("keypress", function(e) {
+            if (e.key === "Enter") {
+                checkAnswer();
+            }
+        });
+        
+        // === خلفية Matrix ===
+        const canvas = document.getElementById("matrix");
+        const ctx = canvas.getContext("2d");
+        
+        let width = canvas.width = window.innerWidth;
+        let height = canvas.height = window.innerHeight;
+        let cols = Math.floor(width / 20);
+        let ypos = Array(cols).fill(0);
+        
+        function matrixEffect() {
+            ctx.fillStyle = "rgba(10, 10, 20, 0.05)";
+            ctx.fillRect(0, 0, width, height);
+            
+            ctx.fillStyle = "#00ffcc";
+            ctx.font = "15px monospace";
+            
+            for (let i = 0; i < ypos.length; i++) {
+                let text = String.fromCharCode(0x30A0 + Math.random() * 96);
+                ctx.fillText(text, i * 20, ypos[i] * 20);
+                
+                if (ypos[i] * 20 > height && Math.random() > 0.975) {
+                    ypos[i] = 0;
+                }
+                
+                ypos[i] += 0.5 + Math.random() * 0.5;
+            }
+            
+            requestAnimationFrame(matrixEffect);
+        }
+        
+        // === تهيئة الصفحة ===
+        function init() {
+            // ضبط حجم Canvas
+            function resizeCanvas() {
+                width = canvas.width = window.innerWidth;
+                height = canvas.height = window.innerHeight;
+                cols = Math.floor(width / 20);
+                ypos = Array(cols).fill(0);
+            }
+            
+            window.addEventListener("resize", resizeCanvas);
+            
+            // تشغيل خلفية المصفوفة
+            matrixEffect();
+            
+            // التركيز على حقل كلمة السر
+            document.getElementById("password").focus();
+            
+            // طلب اسم اللاعب
+            setTimeout(() => {
+                const name = prompt("أدخل اسمك (كقائد للفريق):", "المحقق");
+                if (name && name.trim() !== "") {
+                    playerName = name.trim();
+                }
+            }, 1000);
+        }
+        
+        // بدء اللعبة عند تحميل الصفحة
+        window.onload = init;
+    </script>
+</body>
+</html>
